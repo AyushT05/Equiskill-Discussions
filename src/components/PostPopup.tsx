@@ -8,31 +8,23 @@ type postType = {
   setPost: (val: boolean) => void;
 };
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 const getAIAnswer = async (question: string): Promise<string> => {
   try {
-    const res = await fetch("/groq/openai/v1/chat/completions",  {
+    const res = await fetch("/api/answer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
       },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a knowledgeable academic assistant on EquiSkill, a student learning platform. Answer student questions clearly, concisely, and accurately. Keep responses focused and educational. Avoid fluff.",
-          },
-          { role: "user", content: question },
-        ],
-        max_tokens: 400,
-      }),
+      body: JSON.stringify({ question }),
     });
+
     const data = await res.json();
-    return data.choices?.[0]?.message?.content ?? "I was unable to generate an answer at this time.";
+
+    return (
+      data.choices?.[0]?.message?.content ??
+      "I was unable to generate an answer at this time."
+    );
   } catch {
     return "AI answer unavailable at this time.";
   }
